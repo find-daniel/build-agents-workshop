@@ -1,7 +1,6 @@
-// Step 2 — Why won't it *do* anything? The model claims success but todos stays empty.
 import "dotenv/config";
 
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const API_KEY = process.env.ANTHROPIC_API_KEY!;
 if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
 
 const ENDPOINT = "https://api.anthropic.com/v1/messages";

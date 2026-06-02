@@ -1,13 +1,17 @@
-// Step 4 — The agent loop. while(true) around the model + tools, exit when stop_reason != "tool_use".
 import "dotenv/config";
 
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const API_KEY = process.env.ANTHROPIC_API_KEY!;
 if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
 
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
 
 type Todo = { id: string; text: string; done: boolean };
 const todos: Todo[] = [];
+
+// Minimal shapes for the Anthropic Messages API — just enough for autocomplete.
+type ContentBlock = { type: string; text: string; id: string; name: string; input: any };
+type Message = { role: "user" | "assistant"; content: string | ContentBlock[] | ToolResult[] };
+type ToolResult = { type: "tool_result"; tool_use_id: string; content: string };
 
 const tools = [
   {
@@ -60,7 +64,7 @@ function executeTool(name: string, args: any): string {
 }
 
 async function runAgent(userMessage: string) {
-  const messages: any[] = [{ role: "user", content: userMessage }];
+  const messages: Message[] = [{ role: "user", content: userMessage }];
 
   while (true) {
     const response = await fetch(ENDPOINT, {
@@ -81,19 +85,15 @@ async function runAgent(userMessage: string) {
     });
 
     const data = await response.json();
-
-    // Append the model's full response (text + tool_use blocks) as one assistant turn.
     messages.push({ role: "assistant", content: data.content });
 
-    // Termination: the model stopped without asking for a tool.
     if (data.stop_reason !== "tool_use") {
-      const textBlock = data.content.find((b: any) => b.type === "text");
+      const textBlock = data.content.find((b: ContentBlock) => b.type === "text");
       console.log("\n[final]", textBlock?.text);
       return;
     }
 
-    // Execute every tool the model asked for, collect results.
-    const toolResults: any[] = [];
+    const toolResults: ToolResult[] = [];
     for (const block of data.content) {
       if (block.type !== "tool_use") continue;
       console.log(`[tool] ${block.name}(${JSON.stringify(block.input)})`);
@@ -106,7 +106,6 @@ async function runAgent(userMessage: string) {
       });
     }
 
-    // Tool results all come back in a single user turn.
     messages.push({ role: "user", content: toolResults });
   }
 }

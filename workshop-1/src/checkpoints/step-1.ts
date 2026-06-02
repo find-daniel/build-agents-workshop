@@ -1,7 +1,6 @@
-// Step 1 — Hello, model. One fetch, one message, print the reply.
 import "dotenv/config";
 
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const API_KEY = process.env.ANTHROPIC_API_KEY!;
 if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
 
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
