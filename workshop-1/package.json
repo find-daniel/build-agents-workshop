@@ -1,0 +1,22 @@
+{
+  "name": "workshop-1",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Workshop 1 — build your first agent from scratch",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "tsx src/check.ts",
+    "agent": "tsx src/agent.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}

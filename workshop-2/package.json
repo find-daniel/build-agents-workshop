@@ -1,0 +1,23 @@
+{
+  "name": "workshop-2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Workshop 2 — multi-agent workflows",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "tsx src/check.ts",
+    "agent": "tsx src/agent.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
