@@ -22,7 +22,7 @@ async function callClaude(system: string, messages: any[], tools: any[]) {
 }
 
 const tools = [
-  { name: "read_file",  description: "Read a file's contents by path.",
+  { name: "read_file", description: "Read a file's contents by path.",
     input_schema: { type: "object", properties: { path: { type: "string" } }, required: ["path"] } },
   { name: "write_file", description: "Write contents to a file at path.",
     input_schema: { type: "object", properties: { path: { type: "string" }, contents: { type: "string" } }, required: ["path", "contents"] } },

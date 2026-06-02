@@ -10,19 +10,27 @@ const MODEL = "claude-sonnet-4-6";
 async function callClaude(system: string, messages: any[], tools: any[]) {
   const res = await fetch(ENDPOINT, {
     method: "POST",
-    headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    headers: {
+      "x-api-key": API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
     body: JSON.stringify({ model: MODEL, max_tokens: 4096, system, messages, tools }),
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
   return res.json();
 }
 
+// Crude token estimate — just enough to make context size visible.
 const tokensOf = (msgs: any[]) => Math.round(JSON.stringify(msgs).length / 4);
 
 const tools = [
-  { name: "read_file",  description: "Read a file's contents by path.",   input_schema: { type: "object", properties: { path: { type: "string" } }, required: ["path"] } },
-  { name: "write_file", description: "Write contents to a file at path.",  input_schema: { type: "object", properties: { path: { type: "string" }, contents: { type: "string" } }, required: ["path", "contents"] } },
-  { name: "list_files", description: "List all file paths.",               input_schema: { type: "object", properties: {} } },
+  { name: "read_file", description: "Read a file's contents by path.",
+    input_schema: { type: "object", properties: { path: { type: "string" } }, required: ["path"] } },
+  { name: "write_file", description: "Write contents to a file at path.",
+    input_schema: { type: "object", properties: { path: { type: "string" }, contents: { type: "string" } }, required: ["path", "contents"] } },
+  { name: "list_files", description: "List all file paths.",
+    input_schema: { type: "object", properties: {} } },
 ];
 
 async function executeTool(name: string, args: any): Promise<string> {

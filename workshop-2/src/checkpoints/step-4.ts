@@ -11,15 +11,21 @@ const MODEL = "claude-sonnet-4-6";
 async function callClaude(system: string, messages: any[], tools: any[]) {
   const res = await fetch(ENDPOINT, {
     method: "POST",
-    headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    headers: {
+      "x-api-key": API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
     body: JSON.stringify({ model: MODEL, max_tokens: 4096, system, messages, tools }),
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
   return res.json();
 }
 
+// Crude token estimate — just enough to make context size visible.
 const tokensOf = (msgs: any[]) => Math.round(JSON.stringify(msgs).length / 4);
 
+// One Zod object per tool — the single source of truth.
 const schemas = {
   read_file: z.object({ path: z.string() }),
   write_file: z.object({ path: z.string(), contents: z.string() }),
@@ -73,7 +79,6 @@ async function runAgent(agent: string, system: string, tools: any[], task: strin
   }
 }
 
-// The implementer, exposed as a single tool. Its handler runs a FRESH agent.
 async function delegate(name: string, args: any): Promise<string> {
   switch (name) {
     case "write_implementation":

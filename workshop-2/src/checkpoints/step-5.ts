@@ -25,7 +25,7 @@ async function callClaude(system: string, messages: any[], tools: any[]) {
 // Crude token estimate — just enough to make context size visible.
 const tokensOf = (msgs: any[]) => Math.round(JSON.stringify(msgs).length / 4);
 
-// --- file tools: one Zod schema per tool (drives both the API schema and validation) ---
+// One Zod object per tool — the single source of truth.
 const schemas = {
   read_file: z.object({ path: z.string() }),
   write_file: z.object({ path: z.string(), contents: z.string() }),
@@ -45,7 +45,6 @@ function runFileTool(name: string, args: any): string {
   }
 }
 
-// --- specialists: each is just an agent (system prompt + narrow tools) ---
 const IMPLEMENTER =
   "You are an implementation specialist. Write a single source file to satisfy the spec, " +
   "then stop. Return a ONE-SENTENCE summary naming the file and function — no code, no detail. Do not write tests.";
@@ -62,10 +61,8 @@ const delegateSchemas = {
   review_code: z.object({ files: z.string().describe("Which files to review + what to look for.") }),
 };
 
-// Registry runAgent uses to validate any tool's input.
 const allSchemas: Record<string, any> = { ...schemas, ...delegateSchemas };
 
-// --- the generalized loop: who you are, what you can do, what to do ---
 type Execute = (name: string, args: any) => Promise<string> | string;
 async function runAgent(
   agent: string,
@@ -97,7 +94,6 @@ async function runAgent(
   }
 }
 
-// Each delegate tool runs a FRESH agent (clean context) and returns only its summary.
 async function delegate(name: string, args: any): Promise<string> {
   switch (name) {
     case "write_implementation": return runAgent("implementer", IMPLEMENTER, fileTools, args.spec, runFileTool);
@@ -110,7 +106,6 @@ async function delegate(name: string, args: any): Promise<string> {
 const toolDef = (name: string, description: string, key: keyof typeof delegateSchemas) =>
   ({ name, description, input_schema: toJSONSchema(delegateSchemas[key]) });
 
-// The orchestrator can read + list to inspect — but has NO write_file. It can only delegate.
 const ORCHESTRATOR =
   "You are a tech lead. You do NOT write code yourself. Break the task into sub-tasks and " +
   "delegate each to a specialist tool, then synthesize their summaries into a final report. " +
