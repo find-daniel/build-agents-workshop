@@ -7,7 +7,12 @@ if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
-async function callClaude(system: string, messages: any[], tools: any[]) {
+// Minimal shapes for the Anthropic Messages API — just enough for autocomplete.
+type ContentBlock = { type: string; text: string; id: string; name: string; input: any };
+type Message = { role: "user" | "assistant"; content: string | ContentBlock[] | ToolResult[] };
+type ToolResult = { type: "tool_result"; tool_use_id: string; content: string };
+
+async function callClaude(system: string, messages: Message[], tools: any[]): Promise<{ content: ContentBlock[]; stop_reason: string }> {
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: {
@@ -46,16 +51,16 @@ const SYSTEM = "You are a coding assistant. Use the tools to read and write file
 
 type Execute = (name: string, args: any) => Promise<string> | string;
 async function runAgent(agent: string, system: string, tools: any[], task: string, execute: Execute): Promise<string> {
-  const messages: any[] = [{ role: "user", content: task }];
+  const messages: Message[] = [{ role: "user", content: task }];
   let turn = 0;
   while (true) {
     console.log(`[ctx] ${agent} turn ${++turn}: ${messages.length} msgs, ~${tokensOf(messages)} tok`);
     const data = await callClaude(system, messages, tools);
     messages.push({ role: "assistant", content: data.content });
     if (data.stop_reason !== "tool_use") {
-      return data.content.find((b: any) => b.type === "text")?.text ?? "";
+      return data.content.find((b: ContentBlock) => b.type === "text")?.text ?? "";
     }
-    const results: any[] = [];
+    const results: ToolResult[] = [];
     for (const block of data.content) {
       if (block.type !== "tool_use") continue;
       const out = await execute(block.name, block.input);
