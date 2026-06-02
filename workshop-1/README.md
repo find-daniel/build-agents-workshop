@@ -10,8 +10,8 @@ Starter repo. The real doc is the participant guide — this just gets you to th
 ## Setup
 
 ```bash
-git clone <this repo>
-cd workshop-1
+git clone https://github.com/find-daniel/build-agents-workshop.git
+cd build-agents-workshop/workshop-1
 npm install
 cp .env.example .env       # then paste your ANTHROPIC_API_KEY into .env
 npm run check              # should print: ✅ Anthropic API is reachable.
@@ -21,7 +21,7 @@ If `npm run check` fails, the error message will tell you what to fix (key, head
 
 ## Workshop
 
-Follow `workshop-1-participant-guide.md` — you'll grow `src/agent.ts` from an empty stub into a working agent loop over the course of the session.
+Follow the participant guide at https://agent-workshops.vercel.app/workshop-1 — you'll grow `src/agent.ts` from an empty stub into a working agent loop over the course of the session.
 
 ## Falling behind?
 
