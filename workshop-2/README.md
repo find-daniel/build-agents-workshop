@@ -11,7 +11,8 @@ Starter repo. The guide is the real doc — this just gets you to the starting l
 ## Setup
 
 ```bash
-cd workshop-2
+git clone https://github.com/find-daniel/build-agents-workshop.git
+cd build-agents-workshop/workshop-2
 npm install
 cp .env.example .env       # then paste your ANTHROPIC_API_KEY into .env
 npm run check              # should print: ✅ Anthropic API is reachable.
@@ -21,7 +22,7 @@ Get `npm run check` passing **before** the workshop starts.
 
 ## Workshop
 
-Follow the participant guide. You'll grow `src/agent.ts` from a single coding agent
+Follow the participant guide at https://agent-workshops.vercel.app/workshop-2 — you'll grow `src/agent.ts` from a single coding agent
 into an **orchestrator** that delegates to specialist sub-agents (implementer, tester,
 reviewer) — all powered by one `runAgent`. `src/mockFiles.ts` is a pre-provided in-memory
 file system, so nothing touches your real disk.
