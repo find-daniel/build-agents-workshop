@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { ContentBlock, Message, ToolResult } from "../types";
 
 const API_KEY = process.env.ANTHROPIC_API_KEY!;
 if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
@@ -7,11 +8,6 @@ const ENDPOINT = "https://api.anthropic.com/v1/messages";
 
 type Todo = { id: string; text: string; done: boolean };
 const todos: Todo[] = [];
-
-// Minimal shapes for the Anthropic Messages API — just enough for autocomplete.
-type ContentBlock = { type: string; text: string; id: string; name: string; input: any };
-type Message = { role: "user" | "assistant"; content: string | ContentBlock[] | ToolResult[] };
-type ToolResult = { type: "tool_result"; tool_use_id: string; content: string };
 
 const tools = [
   {
@@ -53,9 +49,9 @@ function executeTool(name: string, args: any): string {
     case "list_todos":
       return JSON.stringify(todos);
     case "complete_todo": {
-      const t = todos.find((t) => t.id === args.id);
-      if (!t) return JSON.stringify({ error: "not found" });
-      t.done = true;
+      const todo = todos.find((todo) => todo.id === args.id);
+      if (!todo) return JSON.stringify({ error: "not found" });
+      todo.done = true;
       return JSON.stringify({ success: true });
     }
     default:
@@ -88,7 +84,7 @@ async function runAgent(userMessage: string) {
     messages.push({ role: "assistant", content: data.content });
 
     if (data.stop_reason !== "tool_use") {
-      const textBlock = data.content.find((b: ContentBlock) => b.type === "text");
+      const textBlock = data.content.find((block: ContentBlock) => block.type === "text");
       console.log("\n[final]", textBlock?.text);
       return;
     }

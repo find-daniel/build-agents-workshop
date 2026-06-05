@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { readFile, writeFile, listFiles } from "./mockFiles";
+import { ContentBlock, Message, ToolResult } from "./types";
 
 const API_KEY = process.env.ANTHROPIC_API_KEY!;
 if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
@@ -7,10 +8,6 @@ if (!API_KEY) throw new Error("Set ANTHROPIC_API_KEY in .env");
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-6";
 
-// Minimal shapes for the Anthropic Messages API — just enough for autocomplete.
-type ContentBlock = { type: string; text: string; id: string; name: string; input: any };
-type Message = { role: "user" | "assistant"; content: string | ContentBlock[] | ToolResult[] };
-type ToolResult = { type: "tool_result"; tool_use_id: string; content: string };
 
 async function callClaude(system: string, messages: Message[], tools: any[]): Promise<{ content: ContentBlock[]; stop_reason: string }> {
   const res = await fetch(ENDPOINT, {
